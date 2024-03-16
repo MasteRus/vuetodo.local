@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('note_id');
             $table->string('text');
             $table->integer('order');
-            $table->boolean('checked');
+            $table->boolean('checked')->default(false);
             $table->timestamps();
         });
 

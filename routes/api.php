@@ -20,3 +20,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::apiResource('notes', NoteController::class);
+Route::post('notes/{note}/items', [NoteController::class, 'addItem']);
+Route::post('notes/{note}/items/{id}/toggle', [NoteController::class, 'toggleItem']);
+Route::put('notes/{note}/items/{id}', [NoteController::class, 'updateItem']);
+Route::delete('notes/{note}/items/{id}', [NoteController::class, 'deleteItem']);

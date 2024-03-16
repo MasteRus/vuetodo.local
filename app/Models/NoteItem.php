@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class NoteItem extends Model
 {
@@ -13,6 +14,22 @@ class NoteItem extends Model
         'note_id',
         'text',
         'order',
-        'checked',
     ];
+
+    public function note(): HasOne
+    {
+        return $this->hasOne(Note::class);
+    }
+
+    public function check(): void
+    {
+        $this->checked = 1;
+        $this->save();
+    }
+
+    public function uncheck(): void
+    {
+        $this->checked = 0;
+        $this->save();
+    }
 }
