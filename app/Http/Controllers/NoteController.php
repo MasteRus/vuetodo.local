@@ -18,6 +18,36 @@ class NoteController extends Controller
         return new NoteCollection(Note::paginate(20));
     }
 
+    public function store(NoteStoreRequest $request): NoteResource
+    {
+        $post = $request->validated();
+        $note = new Note($post);
+        $note->saveOrFail();
+
+        return new NoteResource($note);
+    }
+
+    public function show(Note $note): NoteFullResource
+    {
+        return new NoteFullResource($note);
+    }
+
+    public function update(NoteStoreRequest $request, Note $note): NoteResource
+    {
+        $post = $request->validated();
+        $note->update($post);
+
+        return new NoteResource($note);
+    }
+
+    public function destroy(Note $note): JsonResponse
+    {
+        $note->delete();
+
+        return response()->json(null, 204);
+    }
+
+
     public function addItem(NoteStoreItemRequest $request, Note $note): NoteFullResource
     {
         $post = $request->validated();
@@ -56,34 +86,5 @@ class NoteController extends Controller
         $note->refresh();
 
         return new NoteFullResource($note);
-    }
-
-    public function store(NoteStoreRequest $request): NoteResource
-    {
-        $post = $request->validated();
-        $note = new Note($post);
-        $note->saveOrFail();
-
-        return new NoteResource($note);
-    }
-
-    public function show(Note $note): NoteFullResource
-    {
-        return new NoteFullResource($note);
-    }
-
-    public function update(NoteStoreItemRequest $request, Note $note): NoteResource
-    {
-        $post = $request->validated();
-        $note->update($post);
-
-        return new NoteResource($note);
-    }
-
-    public function destroy(Note $note): JsonResponse
-    {
-        $note->delete();
-
-        return response()->json(null, 204);
     }
 }

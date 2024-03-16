@@ -11,11 +11,18 @@ const apiClient = axios.create({
 
 export default {
     getNotes() {
-        let result = apiClient.get('/notes');
-        console.log(result);
-        return result;
+        return  apiClient.get('/notes');
     },
-    getNoteItems(noteId) {
+    getNote(noteId) {
         return apiClient.get(`/notes/${noteId}`);
+    },
+    createNote(noteData) {
+        return apiClient.post('/notes', noteData);
+    },
+    updateNote(noteId, noteData) {
+        return apiClient.put(`/notes/${noteId}`, noteData);
+    },
+    deleteNote(noteId) {
+        return apiClient.delete(`/notes/${noteId}`);
     },
 }
