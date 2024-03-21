@@ -25,4 +25,10 @@ export default {
     deleteNote(noteId) {
         return apiClient.delete(`/notes/${noteId}`);
     },
+    createItem(noteId, itemData) {
+        return apiClient.post(`/notes/${noteId}/items`, itemData);
+    },
+    deleteItem(noteId, itemId) {
+        return apiClient.delete(`/notes/${noteId}/items/${itemId}`);
+    },
 }

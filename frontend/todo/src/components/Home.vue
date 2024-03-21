@@ -6,7 +6,7 @@
             <p class="text-gray-600">Created at: {{ note.created_at }}</p>
             <p class="text-gray-600">Updated at: {{ note.updated_at }}</p>
             <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                    @click="fetchItems(note)">Show
+                    @click="startChecking(note)">Check
             </button>
             <button class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded"
                     @click="startEditing(note)">Edit
@@ -18,24 +18,30 @@
         <button @click="startCreating" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
             Create todolist
         </button>
-        <note-form v-if="isCreating || isEditing" :note="editableNote" @noteSaved="handleNoteSaved"/>
+        <note-form v-if="isCreating || isEditing" :note="editableNote" :noteItems="noteItems" @noteSaved="handleNoteSaved"/>
+<!--        <check-form v-if="isChecking" :note="checkingNote" :noteItems="noteItems" @noteSaved="handleNoteSaved"/>-->
     </div>
 </template>
 
 <script>
 import NoteForm from './NoteForm.vue';
+import CheckForm from './CheckForm.vue';
 import ApiService from '@/services/ApiService'
 
 export default {
     components: {
-        NoteForm
+        NoteForm,
+        CheckForm
     },
     data() {
         return {
             notes: [],
+            noteItems: [],
             isCreating: false,
             isEditing: false,
-            editableNote: {}
+            isChecking: false,
+            editableNote: {},
+            checkingNote: {}
         };
     },
     mounted() {
@@ -56,14 +62,30 @@ export default {
             return true;
         },
         startCreating() {
+            this.fetchNotes();
             this.isCreating = true;
             this.isEditing = false;
+            this.isChecking = false;
+
             this.editableNote = {name: ''};
+            this.checkingNote = {};
         },
         startEditing(note) {
+            this.fetchItems(note);
             this.isCreating = false;
             this.isEditing = true;
+            this.isChecking = false;
             this.editableNote = {...note};
+            this.checkingNote = {};
+        },
+        startChecking(note) {
+            this.fetchNotes(note);
+            this.isCreating = false;
+            this.isEditing = false;
+            this.isChecking = true;
+
+            this.editableNote = {name: ''};
+            this.checkingNote = {...note};
         },
         handleNoteSaved(savedNote) {
             if (this.isCreating) {
@@ -82,7 +104,7 @@ export default {
         fetchItems(note) {
             ApiService.getNote(note.id)
                 .then(response => {
-                    this.$set(note, 'items', response.data);
+                    this.noteItems = response.data.data.items;
                 })
                 .catch(error => {
                     console.error('Ошибка при получении элементов списка:', error);
