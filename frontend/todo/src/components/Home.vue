@@ -19,7 +19,12 @@
             Create todolist
         </button>
         <note-form v-if="isCreating || isEditing" :note="editableNote" :noteItems="noteItems" @noteSaved="handleNoteSaved"/>
-        <check-form v-if="isChecking" :note="checkingNote" :noteItems="noteItems"/>
+        <check-form
+            v-if="isChecking && isModalOpen"
+            :note="checkingNote" :noteItems="noteItems"
+            @closeModal="handleCloseModal"
+            @close="isModalOpen = false"
+        />
     </div>
 </template>
 
@@ -41,7 +46,8 @@ export default {
             isEditing: false,
             isChecking: false,
             editableNote: {},
-            checkingNote: {}
+            checkingNote: {},
+            isModalOpen: false
         };
     },
     mounted() {
@@ -88,8 +94,28 @@ export default {
 
             this.editableNote = {name: ''};
             this.checkingNote = {...note};
+
+            this.isModalOpen = true;
+        },
+        handleCloseModal(){
+            console.log("HANDLER");
+            this.isModalOpen = false;
         },
         handleNoteSaved(savedNote) {
+            if (this.isCreating) {
+                this.notes.push(savedNote);
+            } else if (this.isEditing) {
+                const index = this.notes.findIndex(note => note.id === savedNote.id);
+                if (index !== -1) {
+                    this.notes.splice(index, 1, savedNote);
+                } else {
+                    this.notes.push(savedNote);
+                }
+            }
+            this.isCreating = false;
+            this.isEditing = false;
+        },
+        handleClose(savedNote) {
             if (this.isCreating) {
                 this.notes.push(savedNote);
             } else if (this.isEditing) {

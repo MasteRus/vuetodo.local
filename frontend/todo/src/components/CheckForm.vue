@@ -67,19 +67,29 @@ input[type="checkbox"]:checked::after {
 </style>
 
 <template>
-    <div class="container mx-auto p-4" v-if="noteItems.length > 0">
-        <h2 class="text-xl font-bold mb-4">{{ note.name }}</h2>
-        <ul>
-            <li v-for="item in noteItems" :key="item.id" class="todo-item">
-                <input @change="checkItem(item)" type="checkbox" :id="'checkbox-' + item.id" v-model="item.checked">
-                <label :for="'checkbox-' + item.id">{{ item.text }}</label>
-            </li>
-        </ul>
+    <div class="modal">
+        <div class="modal-background" @click="closeModal"></div>
+        <div class="modal-container">
+            <div class="modal-content">
+                <div class="container mx-auto p-4" v-if="noteItems.length > 0">
+                    <h2 class="text-xl font-bold mb-4">{{ note.name }}</h2>
+                    <ul>
+                        <li v-for="item in noteItems" :key="item.id" class="todo-item">
+                            <input @change="checkItem(item)" type="checkbox" :id="'checkbox-' + item.id"
+                                   v-model="item.checked">
+                            <label :for="'checkbox-' + item.id">{{ item.text }}</label>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <button class="modal-close" @click="closeModal">Close</button>
+        </div>
     </div>
 </template>
 
 <script>
 import ApiService from '@/services/ApiService';
+
 export default {
     props: {
         note: {
@@ -92,6 +102,10 @@ export default {
         }
     },
     methods: {
+        closeModal() {
+            console.log("");
+            this.$emit('closeModal'); // Событие для родительского компонента
+        },
         checkItem(item) {
             ApiService.checkItem(this.note.id, item.id)
                 .then(() => {
@@ -109,16 +123,6 @@ export default {
             console.log("____________________________")
         },
 
-    },
-    watch: {
-        'todo.items': {
-            handler: function (items) {
-                items.forEach(item => {
-                    this.updateItem(item);
-                });
-            },
-            deep: true
-        }
     },
 };
 </script>

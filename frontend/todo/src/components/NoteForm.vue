@@ -66,6 +66,9 @@ export default {
                 this.createNote();
             }
         },
+        closeModal() {
+            this.$emit('closeModal');
+        },
         async createNote() {
             try {
                 const response = await ApiService.createNote({name: this.note.name});
