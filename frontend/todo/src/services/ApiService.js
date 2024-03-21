@@ -31,4 +31,7 @@ export default {
     deleteItem(noteId, itemId) {
         return apiClient.delete(`/notes/${noteId}/items/${itemId}`);
     },
+    checkItem(noteId, itemId) {
+        return apiClient.post(`/notes/${noteId}/items/${itemId}/toggle`);
+    },
 }

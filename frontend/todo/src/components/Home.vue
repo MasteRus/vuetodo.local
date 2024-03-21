@@ -19,7 +19,7 @@
             Create todolist
         </button>
         <note-form v-if="isCreating || isEditing" :note="editableNote" :noteItems="noteItems" @noteSaved="handleNoteSaved"/>
-<!--        <check-form v-if="isChecking" :note="checkingNote" :noteItems="noteItems" @noteSaved="handleNoteSaved"/>-->
+        <check-form v-if="isChecking" :note="checkingNote" :noteItems="noteItems"/>
     </div>
 </template>
 
@@ -71,6 +71,7 @@ export default {
             this.checkingNote = {};
         },
         startEditing(note) {
+            console.log("START EDITITNG", note);
             this.fetchItems(note);
             this.isCreating = false;
             this.isEditing = true;
@@ -79,7 +80,8 @@ export default {
             this.checkingNote = {};
         },
         startChecking(note) {
-            this.fetchNotes(note);
+            console.log("START CHEKING", note);
+            this.fetchItems(note);
             this.isCreating = false;
             this.isEditing = false;
             this.isChecking = true;
@@ -104,6 +106,7 @@ export default {
         fetchItems(note) {
             ApiService.getNote(note.id)
                 .then(response => {
+                    console.log("FETCH Items");
                     this.noteItems = response.data.data.items;
                 })
                 .catch(error => {
