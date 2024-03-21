@@ -24,11 +24,6 @@ li {
     margin-bottom: 0.5rem;
 }
 
-input[type="checkbox"] {
-    margin-right: 0.5rem;
-    cursor: pointer;
-}
-
 label {
     cursor: pointer;
     transition: color 0.3s;
@@ -38,8 +33,10 @@ label:hover {
     color: #42b983;
 }
 
-/* Стилизация чекбоксов */
+/* Checkboxes */
 input[type="checkbox"] {
+    margin-right: 0.5rem;
+    cursor: pointer;
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
@@ -81,7 +78,7 @@ input[type="checkbox"]:checked::after {
                         </li>
                     </ul>
                 </div>
-                <div class="container mx-auto p-4" v-if="noteItems.length == 0">
+                <div class="container mx-auto p-4" v-if="noteItems.length === 0">
                     <h2 class="text-xl font-bold mb-4">You have to add items before to check</h2>
                 </div>
             </div>

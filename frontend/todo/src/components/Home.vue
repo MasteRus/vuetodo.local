@@ -86,9 +86,6 @@ export default {
                     console.error('Error by getting todos list', error);
                 });
         },
-        log(note) {
-            return true;
-        },
         startCreating() {
             this.fetchNotes();
             this.isCreating = true;
@@ -125,20 +122,6 @@ export default {
             this.isModalOpen = false;
         },
         handleNoteSaved(savedNote) {
-            if (this.isCreating) {
-                this.notes.push(savedNote);
-            } else if (this.isEditing) {
-                const index = this.notes.findIndex(note => note.id === savedNote.id);
-                if (index !== -1) {
-                    this.notes.splice(index, 1, savedNote);
-                } else {
-                    this.notes.push(savedNote);
-                }
-            }
-            this.isCreating = false;
-            this.isEditing = false;
-        },
-        handleClose(savedNote) {
             if (this.isCreating) {
                 this.notes.push(savedNote);
             } else if (this.isEditing) {
