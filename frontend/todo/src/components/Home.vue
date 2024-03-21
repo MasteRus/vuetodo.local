@@ -1,24 +1,47 @@
 <template>
     <div class="container mx-auto p-4">
         <h1 class="text-2xl font-bold mb-4">Todo lists</h1>
-        <div v-if="notes.length > 0" v-for="note in notes" :key="note.id" class="mb-4 bordered rounded-md">
-            <h2 class="text-xl font-semibold">{{ note.name }}</h2>
-            <p class="text-gray-600">Created at: {{ note.created_at }}</p>
-            <p class="text-gray-600">Updated at: {{ note.updated_at }}</p>
-            <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                    @click="startChecking(note)">Check
-            </button>
-            <button class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded"
-                    @click="startEditing(note)">Edit
-            </button>
-            <button class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-                    @click="deleteNote(note)">Delete
-            </button>
+        <div v-if="notes.length > 0">
+            <table class="min-w-full table-auto">
+                <thead class="bg-gray-200">
+                <tr>
+                    <th class="px-4 py-2">Name</th>
+                    <th class="px-4 py-2">Created At</th>
+                    <th class="px-4 py-2">Updated At</th>
+                    <th class="px-4 py-2">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="note in notes" :key="note.id" class="bordered">
+                    <td class="border px-4 py-2">{{ note.name }}</td>
+                    <td class="border px-4 py-2">{{ note.created_at }}</td>
+                    <td class="border px-4 py-2">{{ note.updated_at }}</td>
+                    <td class="border px-4 py-2">
+                        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded"
+                                @click="startChecking(note)">Check
+                        </button>
+                        <button class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-1 px-2 rounded"
+                                @click="startEditing(note)">Edit
+                        </button>
+                        <button class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded"
+                                @click="deleteNote(note)">Delete
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
         </div>
         <button @click="startCreating" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
             Create todolist
         </button>
-        <note-form v-if="isCreating || isEditing" :note="editableNote" :noteItems="noteItems" @noteSaved="handleNoteSaved"/>
+        <note-form
+            v-if="(isCreating || isEditing) && isModalOpen"
+            :note="editableNote"
+            :noteItems="noteItems"
+            @noteSaved="handleNoteSaved"
+            @closeModal="handleCloseModal"
+            @close="isModalOpen = false"
+        />
         <check-form
             v-if="isChecking && isModalOpen"
             :note="checkingNote" :noteItems="noteItems"
@@ -64,7 +87,6 @@ export default {
                 });
         },
         log(note) {
-            console.log(note);
             return true;
         },
         startCreating() {
@@ -75,18 +97,20 @@ export default {
 
             this.editableNote = {name: ''};
             this.checkingNote = {};
+
+            this.isModalOpen = true;
         },
         startEditing(note) {
-            console.log("START EDITITNG", note);
             this.fetchItems(note);
             this.isCreating = false;
             this.isEditing = true;
             this.isChecking = false;
             this.editableNote = {...note};
             this.checkingNote = {};
+
+            this.isModalOpen = true;
         },
         startChecking(note) {
-            console.log("START CHEKING", note);
             this.fetchItems(note);
             this.isCreating = false;
             this.isEditing = false;
@@ -97,8 +121,7 @@ export default {
 
             this.isModalOpen = true;
         },
-        handleCloseModal(){
-            console.log("HANDLER");
+        handleCloseModal() {
             this.isModalOpen = false;
         },
         handleNoteSaved(savedNote) {
@@ -132,7 +155,6 @@ export default {
         fetchItems(note) {
             ApiService.getNote(note.id)
                 .then(response => {
-                    console.log("FETCH Items");
                     this.noteItems = response.data.data.items;
                 })
                 .catch(error => {

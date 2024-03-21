@@ -84,6 +84,14 @@ button:focus-visible {
   }
 }
 
+.bordered {
+    border-bottom: 1px solid #e2e8f0;
+}
+.table-auto {
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
 .modal {
     position: fixed;
     top: 0;

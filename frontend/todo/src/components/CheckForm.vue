@@ -81,8 +81,10 @@ input[type="checkbox"]:checked::after {
                         </li>
                     </ul>
                 </div>
+                <div class="container mx-auto p-4" v-if="noteItems.length == 0">
+                    <h2 class="text-xl font-bold mb-4">You have to add items before to check</h2>
+                </div>
             </div>
-            <button class="modal-close" @click="closeModal">Close</button>
         </div>
     </div>
 </template>
@@ -103,7 +105,6 @@ export default {
     },
     methods: {
         closeModal() {
-            console.log("");
             this.$emit('closeModal'); // Событие для родительского компонента
         },
         checkItem(item) {
@@ -115,14 +116,6 @@ export default {
                     console.error('Error on deleting TODO item:', error);
                 });
         },
-        mounted() {
-
-            console.log("____________________________")
-            console.log(this.note)
-            console.log(this.noteItems);
-            console.log("____________________________")
-        },
-
     },
 };
 </script>
