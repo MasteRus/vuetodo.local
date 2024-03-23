@@ -1,5 +1,5 @@
 <template>
-    <div class="modal">
+    <div class="modal" v-if="isMainModalVisible">
         <div class="modal-background" @click="closeModal"></div>
         <div class="modal-container">
             <div class="modal-content">
@@ -25,7 +25,7 @@
                         <ul>
                             <li v-for="(item, index) in noteItems" :key="index" class="mb-2">
                                 {{ item.text }}
-                                <button @click="deleteItem(item)"
+                                <button @click="showConfirmationDialog(item)"
                                         class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded">
                                     Delete
                                 </button>
@@ -44,12 +44,21 @@
             </div>
         </div>
     </div>
+    <confirmation-dialog
+        :is-visible="isConfirmationVisible"
+        @confirmed="deleteItem"
+        @cancelled="hideConfirmationDialog"
+    />
 </template>
 
 <script>
 import ApiService from '@/services/ApiService';
+import ConfirmationDialog from './ConfirmationDialog.vue';
 
 export default {
+    components: {
+        ConfirmationDialog
+    },
     props: {
         note: {
             type: Object,
@@ -60,6 +69,13 @@ export default {
             required: true
         }
     },
+    data() {
+        return {
+            isMainModalVisible: true,
+            isConfirmationVisible: false,
+            itemToDelete:null,
+        };
+    },
     methods: {
         data() {
             return {
@@ -69,6 +85,12 @@ export default {
                 isEditing: false,
                 editableNote: {}
             };
+        },
+        confirm() {
+            this.$emit('confirmed');
+        },
+        cancel() {
+            this.$emit('cancelled');
         },
         submitForm() {
             if (this.note.id) {
@@ -117,18 +139,28 @@ export default {
                     console.error('Add item:', error);
                 });
         },
-        deleteItem(item) {
-            ApiService.deleteItem(this.note.id, item.id)
+        deleteItem() {
+            ApiService.deleteItem(this.note.id, this.itemToDelete.id)
                 .then(() => {
-                    const index = this.noteItems.findIndex(i => i.id === item.id);
+                    const index = this.noteItems.findIndex(i => i.id === this.itemToDelete.id);
                     if (index !== -1) {
                         this.noteItems.splice(index, 1);
                     }
+                    this.hideConfirmationDialog();
                 })
                 .catch(error => {
                     console.error('Error on deleting TODO item:', error);
                 });
-        }
+        },
+        showConfirmationDialog(item) {
+            this.itemToDelete = item;
+            this.isMainModalVisible = false;
+            this.isConfirmationVisible = true;
+        },
+        hideConfirmationDialog() {
+            this.isMainModalVisible = true;
+            this.isConfirmationVisible = false;
+        },
     }
 };
 </script>

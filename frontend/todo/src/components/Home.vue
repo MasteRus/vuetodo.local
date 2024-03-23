@@ -24,13 +24,18 @@
                                 @click="startEditing(note)">Edit
                         </button>
                         <button class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded"
-                                @click="deleteNote(note)">Delete
+                                @click="showConfirmationDialog(note)">Delete
                         </button>
                     </td>
                 </tr>
                 </tbody>
             </table>
         </div>
+        <confirmation-dialog
+            :is-visible="isConfirmationVisible"
+            @confirmed="deleteNote"
+            @cancelled="hideConfirmationDialog"
+        />
         <button @click="startCreating" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
             Create todolist
         </button>
@@ -54,12 +59,14 @@
 <script>
 import NoteForm from './NoteForm.vue';
 import CheckForm from './CheckForm.vue';
+import ConfirmationDialog from './ConfirmationDialog.vue';
 import ApiService from '@/services/ApiService'
 
 export default {
     components: {
         NoteForm,
-        CheckForm
+        CheckForm,
+        ConfirmationDialog
     },
     data() {
         return {
@@ -70,7 +77,9 @@ export default {
             isChecking: false,
             editableNote: {},
             checkingNote: {},
-            isModalOpen: false
+            isModalOpen: false,
+            isConfirmationVisible: false,
+            todoToDelete: null
         };
     },
     mounted() {
@@ -144,18 +153,25 @@ export default {
                     console.error('Ошибка при получении элементов списка:', error);
                 });
         },
-        deleteNote(note) {
-            if (confirm('Do you want to delete this list?')) {
-                let noteId = note.id;
-                ApiService.deleteNote(noteId)
-                    .then(() => {
-                        this.notes = this.notes.filter(note => note.id !== noteId);
-                    })
-                    .catch(error => {
-                        console.error('Error on delete:', error);
-                    });
-            }
-        }
+        deleteNote() {
+            console.log("NOTE", this.todoToDelete);
+            let noteId = this.todoToDelete.id;
+            ApiService.deleteNote(noteId)
+                .then(() => {
+                    this.notes = this.notes.filter(note => note.id !== noteId);
+                })
+                .catch(error => {
+                    console.error('Error on delete:', error);
+                });
+            this.hideConfirmationDialog();
+        },
+        showConfirmationDialog(todo) {
+            this.todoToDelete = todo;
+            this.isConfirmationVisible = true;
+        },
+        hideConfirmationDialog() {
+            this.isConfirmationVisible = false;
+        },
     }
 };
 </script>
