@@ -22,9 +22,9 @@
                 <div v-if="note.id" class="mt-4">
                     <h3 class="text-lg font-semibold mb-2">TODO Items:</h3>
                     <div v-if="noteItems.length > 0" class="mb-4 bordered rounded-md">
-                        <ul>
-                            <li v-for="(item, index) in noteItems" :key="index" class="mb-2">
-                                {{ item.text }}
+                        <ul class="mt-2">
+                            <li v-for="(item, index) in noteItems" :key="index" class="mb-2 flex justify-between items-center">
+                                <div class="pl-4">{{ item.text }}</div>
                                 <button @click="showConfirmationDialog(item)"
                                         class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded">
                                     Delete
