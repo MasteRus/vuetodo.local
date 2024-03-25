@@ -9,10 +9,13 @@
                     <form @submit.prevent="submitForm">
                         <div class="mb-4">
                             <label for="noteName" class="block text-gray-700 text-sm font-bold mb-2">Name:</label>
-                            <input type="text" id="noteName" v-model="note.name"
+                            <input type="text" id="noteName" v-model="currentInput"
+                                   @input="handleInput"
                                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                                    required>
                         </div>
+                        <button type="button" @click="undo" :disabled="!canUndo" class="mr-2">Undo</button>
+                        <button type="button" @click="redo" :disabled="!canRedo" class="mr-2">Redo</button>
                         <button type="submit"
                                 class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                             {{ note.id ? 'Save' : 'Create' }}
@@ -74,7 +77,22 @@ export default {
             isMainModalVisible: true,
             isConfirmationVisible: false,
             itemToDelete:null,
+            currentInput: this.note.name,
+            previousValue: this.note.name,
+            undoStack: [],
+            redoStack: [],
+            currentNote: { ...this.note },
+            currentNoteItems: [...this.noteItems],
+            isUserInput: true
         };
+    },
+    computed: {
+        canUndo() {
+            return this.undoStack.length > 0;
+        },
+        canRedo() {
+            return this.redoStack.length > 0;
+        },
     },
     methods: {
         data() {
@@ -86,11 +104,42 @@ export default {
                 editableNote: {}
             };
         },
+        pushUndoStack(value){
+            const lastElement = this.undoStack[this.undoStack.length - 1];
+            if ((this.undoStack.length > 1) || (lastElement !== value)) {
+                this.undoStack.push(value);
+            }
+        },
         confirm() {
             this.$emit('confirmed');
         },
         cancel() {
             this.$emit('cancelled');
+        },
+        handleInput(event) {
+            this.pushUndoStack(this.previousValue);
+            this.previousValue = event.target.value;
+        },
+        undo() {
+            if (this.canUndo) {
+                this.isUserInput = false;
+                const previousValue = this.undoStack.pop();
+                this.redoStack.push(this.currentInput);
+                this.currentInput = previousValue; // Обновление поля ввода
+            }
+        },
+        redo() {
+            if (this.canRedo) {
+                this.isUserInput = false;
+                const nextValue = this.redoStack.pop();
+                this.pushUndoStack(this.currentInput);
+                this.currentInput = nextValue;
+            }
+        },
+        saveState() {
+            this.pushUndoStack(this.currentInput);
+            this.isUserInput = true;
+            this.redoStack = [];
         },
         submitForm() {
             if (this.note.id) {
@@ -112,7 +161,7 @@ export default {
         },
         async editNote() {
             try {
-                const response = await ApiService.updateNote(this.note.id, {name: this.note.name});
+                const response = await ApiService.updateNote(this.note.id, {name: this.currentInput});
 
                 this.$emit('noteSaved', response.data.data);
             } catch (error) {

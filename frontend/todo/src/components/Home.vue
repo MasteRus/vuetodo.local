@@ -142,7 +142,7 @@ export default {
                 }
             }
             this.isCreating = false;
-            this.isEditing = false;
+            // this.isEditing = false;
         },
         fetchItems(note) {
             ApiService.getNote(note.id)
